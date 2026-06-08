@@ -78,11 +78,11 @@ class LogarithmsMasterclass(MovingCameraScene):
         label.move_to(box)
         return VGroup(box, label)
 
-    def math_card(self, tex, width=3.0, height=1.18, fill="#13233d", stroke="#2c4266", font_size=38, stroke_color=None):
+    def math_card(self, *tex_strings, width=3.0, height=1.18, fill="#13233d", stroke="#2c4266", font_size=38, stroke_color=None):
         box = RoundedRectangle(corner_radius=0.22, width=width, height=height)
         box.set_fill(fill, opacity=0.95)
         box.set_stroke(stroke_color if stroke_color else stroke, width=2)
-        expr = MathTex(tex, font_size=font_size)
+        expr = MathTex(*tex_strings, font_size=font_size)
         expr.move_to(box)
         return VGroup(box, expr)
 
@@ -123,18 +123,23 @@ class LogarithmsMasterclass(MovingCameraScene):
         self.play(LaggedStart(*[GrowArrow(a) for a in arrows], lag_ratio=0.13), run_time=1.0)
         self.play(FadeIn(label, shift=DOWN * 0.12), run_time=0.45)
 
-        repeated = MathTex(r"2\times 2\times 2\times 2\times 2 = 32", font_size=40)
-        repeated.set_color_by_tex("2", BASE)
-        repeated.set_color_by_tex("32", RESULT)
+        # Fix: Split strings so indexing targets specific elements perfectly
+        repeated = MathTex("2", r"\times", "2", r"\times", "2", r"\times", "2", r"\times", "2", "=", "32", font_size=40)
+        for i in [0, 2, 4, 6, 8]:
+            repeated[i].set_color(BASE)
+        repeated[10].set_color(RESULT)
         repeated.next_to(nodes, DOWN, buff=0.55)
 
-        power = MathTex(r"2^5 = 32", font_size=50)
+        # Fix: Split power equation strings 
+        power = MathTex("2", "^{5}", "=", "32", font_size=50)
         power[0].set_color(BASE)
-        power[2].set_color(RESULT)
+        power[1].set_color(EXPONENT)
+        power[3].set_color(RESULT)
         power.move_to(repeated)
 
         self.play(Write(repeated))
         self.wait(0.4)
+        # TransformMatchingTex matches exactly by the sub-strings we just defined!
         self.play(TransformMatchingTex(repeated, power))
         self.wait(0.9)
 
@@ -151,10 +156,13 @@ class LogarithmsMasterclass(MovingCameraScene):
         ladder = VGroup()
         items = [(1, 2), (2, 4), (3, 8), (4, 16), (5, 32)]
         for e, r in items:
-            card = self.math_card(rf"2^{{{e}}} = {r}", width=2.35, height=1.1, font_size=34)
-            card[1].set_color_by_tex("2", BASE)
-            card[1].set_color_by_tex(str(r), RESULT)
+            # Fix: Update to pass unpacked strings for MathTex splitting
+            card = self.math_card("2", rf"^{{{e}}}", "=", str(r), width=2.35, height=1.1, font_size=34)
+            card[1][0].set_color(BASE)
+            card[1][1].set_color(EXPONENT)
+            card[1][3].set_color(RESULT)
             ladder.add(card)
+            
         ladder.arrange(DOWN, buff=0.18)
         ladder.scale(0.92).shift(LEFT * 2.95 + UP * 0.2)
 
@@ -164,9 +172,10 @@ class LogarithmsMasterclass(MovingCameraScene):
             self.pill("Result", color=RESULT, fill_opacity=0.16, stroke_color=RESULT, width=1.5),
         ).arrange(RIGHT, buff=0.3).to_edge(RIGHT, buff=0.5).shift(UP * 0.2)
 
-        expl = Text("2 × 2 × 2 × 2 × 2", font_size=40, color=WHITE)
+        expl = MathTex("2", r" \times ", "2", r" \times ", "2", r" \times ", "2", r" \times ", "2", font_size=40, color=WHITE)
         expl.next_to(note, DOWN, buff=0.45)
-        expl.set_color_by_tex("2", BASE)
+        for i in [0, 2, 4, 6, 8]:
+            expl[i].set_color(BASE)
 
         self.play(LaggedStart(*[FadeIn(c, shift=LEFT * 0.12) for c in ladder], lag_ratio=0.1), run_time=1.3)
         self.play(FadeIn(note, shift=UP * 0.1))
@@ -182,36 +191,40 @@ class LogarithmsMasterclass(MovingCameraScene):
         self.play(Write(title[0]), FadeIn(title[1], shift=DOWN * 0.12))
         self.wait(0.2)
 
-        known = MathTex(r"2^5 = 32", font_size=62)
+        known = MathTex("2", "^{5}", "=", "32", font_size=62)
         known[0].set_color(BASE)
-        known[2].set_color(RESULT)
+        known[1].set_color(EXPONENT)
+        known[3].set_color(RESULT)
         known.move_to(UP * 0.9)
 
         question = Text("If 2⁵ = 32, what exponent gives 32?", font_size=30, color=WHITE)
         question.next_to(known, DOWN, buff=0.48)
 
-        blank = MathTex(r"2^x = 32", font_size=62)
+        blank = MathTex("2", "^{x}", "=", "32", font_size=62)
         blank[0].set_color(BASE)
-        blank[2].set_color(RESULT)
+        blank[1].set_color(EXPONENT)
+        blank[3].set_color(RESULT)
         blank.move_to(known)
 
         self.play(Write(known))
         self.play(FadeIn(question, shift=UP * 0.1))
         self.wait(0.5)
 
-        xmark = MathTex("x", font_size=66, color=EXPONENT).move_to(known[0].get_center() + RIGHT * 0.18)
-        self.play(FadeTransform(known.copy(), blank), FadeIn(xmark, scale=1.15))
+        # TransformMatchingTex replaces the manual "xmark" hack entirely! 
+        self.play(TransformMatchingTex(known.copy(), blank))
         self.wait(0.4)
 
-        logform = MathTex(r"\log_2(32) = 5", font_size=62)
+        logform = MathTex(r"\log_2(", "32", ")", "=", "5", font_size=62)
         logform[0].set_color(LOGCOLOR)
-        logform[2].set_color(EXPONENT)
+        logform[2].set_color(LOGCOLOR)
+        logform[1].set_color(RESULT)
+        logform[4].set_color(EXPONENT)
         logform.move_to(blank)
 
         subtitle = Text("A logarithm asks for the exponent.", font_size=28, color=TEXT)
         subtitle.to_edge(DOWN, buff=0.55)
 
-        self.play(TransformMatchingTex(blank, logform), FadeOut(xmark), FadeOut(question))
+        self.play(TransformMatchingTex(blank, logform), FadeOut(question))
         self.play(FadeIn(subtitle, shift=UP * 0.1))
         self.wait(1.1)
 
@@ -220,13 +233,16 @@ class LogarithmsMasterclass(MovingCameraScene):
         self.play(Write(title[0]), FadeIn(title[1], shift=DOWN * 0.12))
         self.wait(0.2)
 
-        left = MathTex(r"2^5 = 32", font_size=58)
+        left = MathTex("2", "^{5}", "=", "32", font_size=58)
         left[0].set_color(BASE)
-        left[2].set_color(RESULT)
+        left[1].set_color(EXPONENT)
+        left[3].set_color(RESULT)
 
-        right = MathTex(r"\log_2(32) = 5", font_size=58)
+        right = MathTex(r"\log_2(", "32", ")", "=", "5", font_size=58)
         right[0].set_color(LOGCOLOR)
-        right[2].set_color(EXPONENT)
+        right[2].set_color(LOGCOLOR)
+        right[1].set_color(RESULT)
+        right[4].set_color(EXPONENT)
 
         left.to_edge(LEFT, buff=0.9).shift(UP * 0.35)
         right.to_edge(RIGHT, buff=0.9).shift(UP * 0.35)
@@ -270,14 +286,17 @@ class LogarithmsMasterclass(MovingCameraScene):
             box.set_fill("#13233d", opacity=0.95)
             box.set_stroke("#2c4266", width=2)
 
-            exp = MathTex(rf"{b}^{{{e}}} = {r}", font_size=38)
+            exp = MathTex(str(b), rf"^{{{e}}}", "=", str(r), font_size=38)
             exp[0].set_color(BASE)
-            exp[-1].set_color(RESULT)
+            exp[1].set_color(EXPONENT)
+            exp[3].set_color(RESULT)
             exp.move_to(box).shift(UP * 0.2)
 
-            log = MathTex(rf"\log_{{{b}}}({r}) = {e}", font_size=38)
+            log = MathTex(rf"\log_{{{b}}}(", str(r), ")", "=", str(e), font_size=38)
             log[0].set_color(LOGCOLOR)
-            log[-1].set_color(EXPONENT)
+            log[2].set_color(LOGCOLOR)
+            log[1].set_color(RESULT)
+            log[4].set_color(EXPONENT)
             log.move_to(box).shift(DOWN * 0.26)
 
             cards.add(VGroup(box, exp, log))
@@ -290,12 +309,16 @@ class LogarithmsMasterclass(MovingCameraScene):
         self.play(LaggedStart(*[TransformFromCopy(c[1], c[2]) for c in cards], lag_ratio=0.12), run_time=1.3)
 
         tower = VGroup(
-            MathTex(r"5^1 = 5", font_size=34),
-            MathTex(r"5^2 = 25", font_size=34),
-            MathTex(r"5^3 = 125", font_size=34),
+            MathTex("5", "^1", "=", "5", font_size=34),
+            MathTex("5", "^2", "=", "25", font_size=34),
+            MathTex("5", "^3", "=", "125", font_size=34),
         ).arrange(DOWN, buff=0.18)
+        
         for m in tower:
-            m.set_color_by_tex("5", BASE)
+            m[0].set_color(BASE)
+            m[1].set_color(EXPONENT)
+            m[3].set_color(RESULT)
+            
         tower.to_edge(RIGHT, buff=0.35).shift(UP * 0.25)
 
         tower_label = Text("Growth tower", font_size=24, color=TEXT).next_to(tower, UP, buff=0.15)
