@@ -78,10 +78,10 @@ class LogarithmsMasterclass(MovingCameraScene):
         label.move_to(box)
         return VGroup(box, label)
 
-    def math_card(self, tex, width=3.0, height=1.18, fill="#13233d", stroke="#2c4266", font_size=38):
+    def math_card(self, tex, width=3.0, height=1.18, fill="#13233d", stroke="#2c4266", font_size=38, stroke_color=None):
         box = RoundedRectangle(corner_radius=0.22, width=width, height=height)
         box.set_fill(fill, opacity=0.95)
-        box.set_stroke(stroke, width=2)
+        box.set_stroke(stroke_color if stroke_color else stroke, width=2)
         expr = MathTex(tex, font_size=font_size)
         expr.move_to(box)
         return VGroup(box, expr)
@@ -434,210 +434,75 @@ class LogarithmsMasterclass(MovingCameraScene):
         self.play(Write(takeaway))
         self.wait(1.0)
 
-    def log_laws_one(self):
-        header = Text("Product Rule", font_size=28, weight=BOLD, color=WHITE)
-        formula = MathTex(r"\log_b(MN)=\log_b(M)+\log_b(N)", font_size=42)
-        formula.set_color(LOGCOLOR)
-        formula.next_to(header, DOWN, buff=0.2)
-
-        step1 = MathTex(r"M=b^x,\quad N=b^y", font_size=36)
-        step2 = MathTex(r"MN=b^{x+y}", font_size=36)
-        step3 = MathTex(r"\log_b(MN)=x+y", font_size=36)
-        step4 = MathTex(r"x+y=\log_b(M)+\log_b(N)", font_size=36)
-
-        for m in (step1, step2, step3):
-            m.set_color_by_tex("b", BASE)
-        step3.set_color(LOGCOLOR)
-        step4.set_color(LOGCOLOR)
-
-        group = VGroup(header, formula, step1, step2, step3, step4).arrange(DOWN, buff=0.22, aligned_edge=LEFT)
-        group.to_edge(UP, buff=1.05).shift(LEFT * 0.35)
-
-        self.play(Write(header), Write(formula))
-        self.play(Write(step1))
-        self.play(TransformMatchingTex(step1.copy(), step2))
-        self.play(TransformMatchingTex(step2.copy(), step3))
-        self.play(TransformMatchingTex(step3.copy(), step4))
-        self.wait(0.5)
-        return group
-
-    def log_laws_two(self):
-        header = Text("Quotient Rule", font_size=28, weight=BOLD, color=WHITE)
-        formula = MathTex(r"\log_b(M/N)=\log_b(M)-\log_b(N)", font_size=42)
-        formula.set_color(LOGCOLOR)
-        formula.next_to(header, DOWN, buff=0.2)
-
-        step1 = MathTex(r"M=b^x,\quad N=b^y", font_size=36)
-        step2 = MathTex(r"M/N=b^{x-y}", font_size=36)
-        step3 = MathTex(r"\log_b(M/N)=x-y", font_size=36)
-        step4 = MathTex(r"x-y=\log_b(M)-\log_b(N)", font_size=36)
-
-        for m in (step1, step2):
-            m.set_color_by_tex("b", BASE)
-        step3.set_color(LOGCOLOR)
-        step4.set_color(LOGCOLOR)
-
-        group = VGroup(header, formula, step1, step2, step3, step4).arrange(DOWN, buff=0.22, aligned_edge=LEFT)
-        group.to_edge(UP, buff=1.05).shift(LEFT * 0.35)
-
-        self.play(Write(header), Write(formula))
-        self.play(Write(step1))
-        self.play(TransformMatchingTex(step1.copy(), step2))
-        self.play(TransformMatchingTex(step2.copy(), step3))
-        self.play(TransformMatchingTex(step3.copy(), step4))
-        self.wait(0.5)
-        return group
-
-    def log_laws_three(self):
-        header = Text("Power Rule", font_size=28, weight=BOLD, color=WHITE)
-        formula = MathTex(r"\log_b(M^n)=n\log_b(M)", font_size=42)
-        formula.set_color(LOGCOLOR)
-        formula.next_to(header, DOWN, buff=0.2)
-
-        step1 = MathTex(r"M=b^x", font_size=36)
-        step2 = MathTex(r"M^n=(b^x)^n=b^{xn}", font_size=36)
-        step3 = MathTex(r"\log_b(M^n)=xn", font_size=36)
-        step4 = MathTex(r"xn=n\log_b(M)", font_size=36)
-
-        for m in (step1, step2):
-            m.set_color_by_tex("b", BASE)
-        step3.set_color(LOGCOLOR)
-        step4.set_color(LOGCOLOR)
-
-        group = VGroup(header, formula, step1, step2, step3, step4).arrange(DOWN, buff=0.22, aligned_edge=LEFT)
-        group.to_edge(UP, buff=1.05).shift(LEFT * 0.35)
-
-        self.play(Write(header), Write(formula))
-        self.play(Write(step1))
-        self.play(TransformMatchingTex(step1.copy(), step2))
-        self.play(TransformMatchingTex(step2.copy(), step3))
-        self.play(TransformMatchingTex(step3.copy(), step4))
-        self.wait(0.5)
-        return group
-
     def log_laws_section(self):
-        block1 = self.log_laws_one()
-        self.play(FadeOut(block1), run_time=0.5)
+        title = self.title_block("Logarithm Laws", "The product rule comes directly from exponent rules.")
+        self.play(Write(title[0]), FadeIn(title[1], shift=DOWN * 0.12))
+        self.wait(0.2)
 
-        block2 = self.log_laws_two()
-        self.play(FadeOut(block2), run_time=0.5)
+        header = Text("Product Rule Derivation", font_size=28, weight=BOLD, color=WHITE).shift(UP * 1.5)
+        formula = MathTex(r"\log_b(M \cdot N) = \log_b(M) + \log_b(N)", font_size=42)
+        formula.set_color(LOGCOLOR)
+        formula.next_to(header, DOWN, buff=0.25)
 
-        block3 = self.log_laws_three()
-        self.wait(1.0)
-        self.play(FadeOut(block3), run_time=0.6)
+        step1 = MathTex(r"\text{Let } M=b^x \quad \text{and} \quad N=b^y", font_size=38).next_to(formula, DOWN, buff=0.7)
+        step2 = MathTex(r"M \cdot N = b^x \cdot b^y = b^{x+y}", font_size=38).next_to(step1, DOWN, buff=0.4)
+        step3 = MathTex(r"\log_b(M \cdot N) = x + y", font_size=38).next_to(step2, DOWN, buff=0.4)
+
+        self.play(Write(header))
+        self.play(FadeIn(formula, shift=UP * 0.1))
+        self.wait(0.5)
+        self.play(Write(step1))
+        self.wait(0.5)
+        self.play(Write(step2))
+        self.wait(0.5)
+        self.play(Write(step3))
+        self.wait(1.5)
 
     def common_mistakes_section(self):
-        title = self.title_block("Common Mistakes", "Read the notation carefully.")
+        title = self.title_block("Common Mistakes", "Watch out for these common notation traps!")
         self.play(Write(title[0]), FadeIn(title[1], shift=DOWN * 0.12))
         self.wait(0.2)
 
-        cards = []
-        entries = [
-            (r"\log(a+b)\neq\log(a)+\log(b)", DANGER, "No sum rule"),
-            (r"\log_b(x)", LOGCOLOR, "Base stays outside"),
-            (r"\log_b(b^x)=x", RESULT, "Undoing works"),
-            (r"b^{\log_b(x)}=x", RESULT, "Only for x>0"),
-        ]
-        for tex, color, caption in entries:
-            box = RoundedRectangle(corner_radius=0.2, width=5.35, height=1.16)
-            box.set_fill("#13233d", opacity=0.95)
-            box.set_stroke(color, width=2)
-            expr = MathTex(tex, font_size=34)
-            expr.set_color(color)
-            cap = Text(caption, font_size=20, color=TEXT)
-            expr.move_to(box).shift(UP * 0.12)
-            cap.next_to(expr, DOWN, buff=0.08)
-            cards.append(VGroup(box, expr, cap))
+        mistake1 = self.math_card(r"\log_b(x + y) \neq \log_b(x) + \log_b(y)", width=5.5, stroke_color=DANGER)
+        mistake2 = self.math_card(r"\frac{\log_b(x)}{\log_b(y)} \neq \log_b(x - y)", width=5.5, stroke_color=DANGER)
 
-        cards = VGroup(*cards).arrange_in_grid(rows=2, cols=2, buff=0.42)
-        cards.scale(0.88).shift(DOWN * 0.1)
+        mistakes = VGroup(mistake1, mistake2).arrange(DOWN, buff=0.4).shift(DOWN * 0.1)
 
-        self.play(LaggedStart(*[FadeIn(c[0], scale=0.93) for c in cards], lag_ratio=0.12), run_time=1.0)
-        self.play(LaggedStart(*[Write(c[1]) for c in cards], lag_ratio=0.1), run_time=1.1)
-        self.play(LaggedStart(*[FadeIn(c[2], shift=UP * 0.08) for c in cards], lag_ratio=0.08), run_time=0.8)
-
-        xmark = Cross(cards[0][1], color=DANGER, stroke_width=8)
-        self.play(Create(xmark), run_time=0.6)
+        for m in mistakes:
+            self.play(FadeIn(m, shift=LEFT * 0.15))
+            self.wait(0.5)
         self.wait(1.0)
 
-    def worked_example_block(self, qtex, stept1, stept2, answer, answer_color=EXPONENT):
-        q = MathTex(qtex, font_size=54)
-        q.set_color(LOGCOLOR)
-        q.to_edge(UP, buff=1.3)
-
-        s1 = MathTex(stept1, font_size=54)
-        s1.set_color(BASE)
-        s1.move_to(ORIGIN)
-
-        s2 = MathTex(stept2, font_size=54)
-        s2.set_color(BASE)
-        s2.move_to(ORIGIN)
-
-        ans = MathTex(answer, font_size=54, color=answer_color)
-        ans.move_to(DOWN * 1.3)
-        return q, s1, s2, ans
-
     def worked_examples_section(self):
-        title = self.title_block("Worked Problems", "Turn the log into an exponent question, then solve.")
+        title = self.title_block("Worked Problems", "When in doubt, convert back to exponential form.")
         self.play(Write(title[0]), FadeIn(title[1], shift=DOWN * 0.12))
         self.wait(0.2)
 
-        examples = [
-            (r"\log_2(64)=?", r"2^x=64", r"2^6=64", r"x=6"),
-            (r"\log_3(1/27)=?", r"3^x=1/27", r"3^{-3}=1/27", r"x=-3"),
-            (r"\log_5(125)=?", r"5^x=125", r"5^3=125", r"x=3"),
-        ]
+        problem = MathTex(r"\log_3(x) = 4", font_size=52).shift(UP * 0.5)
+        arrow = MathTex(r"\Downarrow", font_size=52).next_to(problem, DOWN, buff=0.3)
+        solution = MathTex(r"3^4 = x \implies x = 81", font_size=52).next_to(arrow, DOWN, buff=0.3)
 
-        for qtex, step1, step2, ans in examples:
-            q, s1, s2, a = self.worked_example_block(qtex, step1, step2, ans)
-            panel = RoundedRectangle(corner_radius=0.25, width=9.4, height=3.7)
-            panel.set_fill("#101a2e", opacity=0.96)
-            panel.set_stroke("#2c4266", width=2)
-            panel.shift(DOWN * 0.15)
+        problem.set_color(LOGCOLOR)
+        solution.set_color(BASE)
 
-            self.play(FadeIn(panel))
-            self.play(Write(q))
-            self.play(TransformMatchingTex(q.copy(), s1))
-            self.play(TransformMatchingTex(s1.copy(), s2))
-            self.play(TransformMatchingTex(s2.copy(), a))
-            self.wait(0.65)
-            self.play(FadeOut(panel), FadeOut(q), FadeOut(s1), FadeOut(s2), FadeOut(a), run_time=0.5)
-
+        self.play(Write(problem))
         self.wait(0.5)
+        self.play(GrowFromCenter(arrow))
+        self.play(Write(solution))
+        self.wait(1.5)
 
     def final_summary_section(self):
-        top = self.eq_pair(r"b^x=y", r"\log_b(y)=x", left_color=WHITE, right_color=WHITE, font_size=60)
-        top[0].set_color_by_tex("b", BASE)
-        top[0].set_color_by_tex("x", EXPONENT)
-        top[0].set_color_by_tex("y", RESULT)
-        top[2].set_color(LOGCOLOR)
-        top[2].set_color_by_tex("x", EXPONENT)
-        top[2].set_color_by_tex("y", RESULT)
-        top.move_to(UP * 0.6)
+        title = self.title_block("Final Summary", "If you remember only one thing...")
+        self.play(Write(title[0]), FadeIn(title[1], shift=DOWN * 0.12))
+        self.wait(0.2)
 
-        box1 = RoundedRectangle(corner_radius=0.24, width=5.0, height=1.15)
-        box1.set_fill("#13233d", opacity=0.95)
-        box1.set_stroke(BASE, width=2)
-        box2 = RoundedRectangle(corner_radius=0.24, width=5.0, height=1.15)
-        box2.set_fill("#231338", opacity=0.95)
-        box2.set_stroke(LOGCOLOR, width=2)
+        summary_box = RoundedRectangle(corner_radius=0.3, width=7.0, height=2.0)
+        summary_box.set_fill("#13233d", opacity=0.95)
+        summary_box.set_stroke(ACCENT, width=3)
 
-        left = VGroup(Text("Exponentiation", font_size=28, weight=BOLD, color=BASE), Text("What number do I get?", font_size=26, color=WHITE))
-        left.arrange(DOWN, buff=0.12).move_to(box1)
-        right = VGroup(Text("Logarithms", font_size=28, weight=BOLD, color=LOGCOLOR), Text("What exponent did I use?", font_size=26, color=WHITE))
-        right.arrange(DOWN, buff=0.12).move_to(box2)
+        text = Text("A logarithm is just an exponent.", font_size=42, weight=BOLD, color=WHITE)
+        text.move_to(summary_box)
 
-        groups = VGroup(VGroup(box1, left), VGroup(box2, right)).arrange(RIGHT, buff=0.6).move_to(DOWN * 1.45)
-
-        self.play(Write(top[0]), Write(top[1]), Write(top[2]))
-        self.play(FadeIn(groups[0][0]), FadeIn(groups[1][0]))
-        self.play(Write(left[0]), Write(left[1]), Write(right[0]), Write(right[1]))
-        self.wait(0.7)
-
-        final = Text(
-            "Exponentiation asks: What number do I get?   •   Logs ask: What exponent did I use?",
-            font_size=25,
-            color=TEXT
-        ).to_edge(DOWN, buff=0.45)
-        self.play(FadeIn(final, shift=UP * 0.1))
-        self.wait(1.8)
+        self.play(Create(summary_box))
+        self.play(Write(text))
+        self.wait(2.0)
