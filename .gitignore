@@ -1,0 +1,41 @@
+# =========================
+# Manim Outputs
+# =========================
+media/
+
+# =========================
+# Python Cache & Compiled Files
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# =========================
+# Virtual Environments
+# =========================
+venv/
+env/
+.venv/
+manim-env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# =========================
+# IDEs and Editors
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS Generated Files
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
